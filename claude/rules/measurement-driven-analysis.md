@@ -35,6 +35,8 @@ Never skip a step. Never propose fixes for unverified hypotheses. Never ask the 
 
    Running the falsification test cheaply is almost always better than shipping the optimization and discovering post-hoc that the hypothesis was wrong. Metrics that are *near-saturated* (e.g., avg TX at 94% of link capacity) are correlation, not proof — near-saturation of X and "X is the binding constraint" are different claims, and only the falsification test distinguishes them.
 
+7. **"Tool not installed" is not a stop condition when you have root.** If your preferred diagnostic tool isn't on the target (BCC, bpftrace, flamegraph scripts, etc.), try to install it or a functional substitute before concluding the diagnostic path is closed. Root SSH access + standard package managers (`yum`/`apt`/`tdnf`) are usually enough. If installation fails, diagnose *why* before giving up — a 0-byte perf.data or a tracepoint that silently produces nothing is usually fixable (mmap buffer size, tracefs mount, kernel config, `perf_event_paranoid`, `dmesg`). In-process instrumentation (adding targeted bvars/counters in the source under investigation) is almost always a viable fallback for wait-time analysis and doesn't depend on external tooling. Escalate to the user only after you've tried install, diagnose, and substitute.
+
 ## Anti-patterns
 
 - "The 22ms is likely caused by X. Options: (a) try Y, (b) try Z" — proposing fixes without verifying X

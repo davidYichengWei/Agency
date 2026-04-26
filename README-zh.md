@@ -95,12 +95,12 @@ Agency 用两个机制解决：
 
 ### 跨模型协作
 
-Claude 和 Codex 默认协同工作——两个模型独立判断能发现单一模型会漏掉的盲点：
+Claude 和 Codex 可以默认协同工作——两个模型独立判断能发现单一模型会漏掉的盲点：
 
-- **审查模式**：Claude 实现，Codex 审查变更
-- **并行模式**：两个模型独立处理同一问题，然后比较——消除盲点和锚定偏差
+- **审查模式**：主 agent 实现，同伴 agent 审查变更
+- **并行模式**：两个模型独立处理同一问题，然后比较——减少盲点和锚定偏差
 
-在每个质量门前，agent 必须先和 Codex 达成共识。你看到的始终是两个模型的统一意见。
+安装跨模型协作后，在每个质量门前，主 agent 必须先和同伴 agent 达成共识。你看到的始终是统一意见，而不是两边未解决的分歧。
 
 ### 基于约束的编排
 
@@ -132,8 +132,17 @@ Agent 自己选方法、定顺序、挑工具——只要不越界。
 
 ```
 "从 https://github.com/davidYichengWei/Agency 安装 Agency harness——
- clone 下来，读 README，跑 install.sh，然后读装好的 CLAUDE.md、rules 和 skills，
+ clone 下来，读 README，跑 install.sh，然后读装好的根指令、rules 和 skills，
  搞清楚你以后该怎么干活。"
+```
+
+默认安装 Claude 作为主 agent，Codex 作为协作者。也可以显式选择主 agent：
+
+```bash
+./install.sh --main claude           # Claude main + Codex collaborator
+./install.sh --main codex            # Codex main + Claude collaborator
+./install.sh --main codex --single   # 只安装 Codex 行为，不追加跨模型协作
+./install.sh --reverse --main claude # 将 live skills/rules 反向同步回仓库
 ```
 
 搞定。Agent 自己装好并学会自己的工作方式。之后直接派活：
@@ -151,7 +160,9 @@ Agent 自己研究、规划、执行，到质量门停下来等你审批。
 ```
 Agency/
 ├── claude/
-│   ├── CLAUDE.md              # 核心 harness：身份、编排、原则
+│   ├── CLAUDE-main.md         # Claude 作为主 agent
+│   ├── CLAUDE-collaborator.md # Claude 作为同伴审查/分析 agent
+│   ├── cross-model-codex.md   # Codex 作为同伴时追加的协作说明
 │   ├── rules/                 # 始终生效的行为约束
 │   │   ├── activity-tracking.md
 │   │   ├── escalation.md
@@ -169,11 +180,15 @@ Agency/
 │       ├── task-planning/         # tasks.md 任务拆解
 │       ├── code-review/           # 多 agent 代码评审
 │       ├── codex-collaboration/   # 跨模型共识协议
+│       ├── claude-collaboration/  # 跨模型共识协议
 │       ├── process-cr-comments/   # 处理 PR 评审意见
+│       ├── consolidate-agent-dir/ # 清理 .agent 任务目录
 │       └── reflect/               # 从错误与经验中总结
 ├── codex/
-│   └── AGENTS.md              # Codex 配置
-└── install.sh                 # 安装脚本
+│   ├── AGENTS-main.md         # Codex 作为主 agent
+│   ├── AGENTS-collaborator.md # Codex 作为同伴审查/分析 agent
+│   └── cross-model-claude.md  # Claude 作为同伴时追加的协作说明
+└── install.sh                 # 安装与同步脚本
 ```
 
 ### 三层结构

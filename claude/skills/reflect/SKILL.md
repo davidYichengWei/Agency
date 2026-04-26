@@ -44,21 +44,21 @@ Promotion itself is **human-approved** — you suggest, the user confirms and mo
 ## Examples
 
 ```markdown
-### [2026-04-17] When editing storage/tdstore/rocksdb/, always verify `is_tdstore_cf` guards first
-**Context**: Added a change to SST iteration that regressed vanilla RocksDB behavior because the guard was missing. Build passed; MTR caught it.
-**Suggested promotion**: rule — extend `rules/std-rocksdb-modification.md`
+### [2026-04-17] When editing generated API clients, verify the generator input first
+**Context**: Patched a generated file directly; the next codegen run overwrote the change. Build passed, but the fix was not durable.
+**Suggested promotion**: rule — extend `rules/code-generation.md`
 ```
 
 ```markdown
-### [2026-04-17] In TDSQL, "RG" (replication group) and "region" are distinct concepts — not interchangeable
-**Context**: Assumed they were the same while reading tdstore_client output; led to a wrong hypothesis during RCA. Codex caught it.
-**Suggested promotion**: memory — new file `memory/project_tdsql_vocabulary.md`
+### [2026-04-17] In this project, "workspace" and "tenant" are distinct concepts
+**Context**: Treated them as interchangeable during RCA; this produced a wrong query and delayed the investigation.
+**Suggested promotion**: memory — new file `memory/project_vocabulary.md`
 ```
 
 ```markdown
-### [2026-04-17] For MC scheduling questions, start at tdsql/mc/server/scheduler.cc — not the handlers
-**Context**: Spent 20 min in handlers before finding the scheduling loop; the scheduler is the entry point for most scheduling bugs.
-**Suggested promotion**: skill — extend navigation section of `skills/std-mc-module/SKILL.md`
+### [2026-04-17] For background-job scheduling questions, start at scheduler/runner.go
+**Context**: Spent 20 min in HTTP handlers before finding the scheduling loop; the runner is the entry point for most scheduling bugs.
+**Suggested promotion**: skill — extend navigation section of `skills/project-component-map/SKILL.md`
 ```
 
 ```markdown

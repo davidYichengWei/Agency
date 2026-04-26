@@ -95,12 +95,12 @@ Together: maximum autonomy for decisions the agent can make well, human judgment
 
 ### Cross-Model Collaboration
 
-Claude and Codex work together by default — two models working independently catch blind spots a single model misses:
+Claude and Codex can work together by default — two models working independently catch blind spots a single model misses:
 
-- **Review mode**: Claude implements, Codex reviews the diff
-- **Parallel mode**: Both work independently on the same problem, then compare — reduces blind spots and anchoring bias
+- **Review mode**: the main agent implements, the peer agent reviews the diff
+- **Parallel mode**: both models work independently on the same problem, then compare — reduces blind spots and anchoring bias
 
-Before any quality gate, the agent must reach consensus with Codex. You always see a unified position from both models.
+Before any quality gate, the main agent must reach consensus with its peer when cross-model collaboration is installed. You always see a unified position, not two unresolved opinions.
 
 ### Constraint-Based Orchestration
 
@@ -132,8 +132,17 @@ Tell your agent:
 
 ```
 "Install the Agency harness from https://github.com/davidYichengWei/Agency —
- clone it, read the README, run install.sh, then read the installed CLAUDE.md,
- rules, and skills to understand how you should operate."
+ clone it, read the README, run install.sh, then read the installed root
+ instructions, rules, and skills to understand how you should operate."
+```
+
+By default this installs Claude as the main agent and Codex as the collaborator. You can choose the main agent explicitly:
+
+```bash
+./install.sh --main claude           # Claude main + Codex collaborator
+./install.sh --main codex            # Codex main + Claude collaborator
+./install.sh --main codex --single   # Codex only, no cross-model addendum
+./install.sh --reverse --main claude # pull live skills/rules back into the repo
 ```
 
 That's it. The agent installs and learns its own operating model. From now on, give it tasks:
@@ -151,7 +160,9 @@ The agent will research, plan, and execute — stopping at quality gates for you
 ```
 Agency/
 ├── claude/
-│   ├── CLAUDE.md              # Core harness: identity, orchestration, principles
+│   ├── CLAUDE-main.md         # Claude as primary agent
+│   ├── CLAUDE-collaborator.md # Claude as peer reviewer/problem-solver
+│   ├── cross-model-codex.md   # Addendum when Codex is installed as peer
 │   ├── rules/                 # Always-on behavioral constraints
 │   │   ├── activity-tracking.md
 │   │   ├── escalation.md
@@ -169,11 +180,15 @@ Agency/
 │       ├── task-planning/         # tasks.md breakdown
 │       ├── code-review/           # Multi-agent review orchestration
 │       ├── codex-collaboration/   # Cross-model consensus protocol
+│       ├── claude-collaboration/  # Cross-model consensus protocol
 │       ├── process-cr-comments/   # Triage and respond to PR review comments
+│       ├── consolidate-agent-dir/ # Clean up task artifact directories
 │       └── reflect/               # Proactive reflection on mistakes and lessons
 ├── codex/
-│   └── AGENTS.md              # Codex configuration (dual-role: main agent + collaborator)
-└── install.sh                 # Install script
+│   ├── AGENTS-main.md         # Codex as primary agent
+│   ├── AGENTS-collaborator.md # Codex as peer reviewer/problem-solver
+│   └── cross-model-claude.md  # Addendum when Claude is installed as peer
+└── install.sh                 # Install and sync script
 ```
 
 ### Three Layers
