@@ -6,6 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SHARED_SRC="$SCRIPT_DIR/shared"
 CLAUDE_SRC="$SCRIPT_DIR/claude"
 CODEX_SRC="$SCRIPT_DIR/codex"
 CLAUDE_MAIN_SRC="$CLAUDE_SRC/CLAUDE-main.md"
@@ -14,6 +15,11 @@ CLAUDE_CROSS_MODEL_SRC="$CLAUDE_SRC/cross-model-codex.md"
 CODEX_MAIN_SRC="$CODEX_SRC/AGENTS-main.md"
 CODEX_COLLABORATOR_SRC="$CODEX_SRC/AGENTS-collaborator.md"
 CODEX_CROSS_MODEL_SRC="$CODEX_SRC/cross-model-claude.md"
+
+# Optional: drop a project-specific context file at shared/PROJECT.md
+# (code structure, build commands, internal services). It will be appended to
+# the installed CLAUDE.md / AGENTS.md at sync time. Skipped if not present.
+PROJECT_SRC="$SHARED_SRC/PROJECT.md"
 
 # --- Arg parsing ---
 MODE="forward"
@@ -90,19 +96,19 @@ if [[ "$MODE" == "reverse" ]]; then
     echo "=== Reverse syncing shared assets for main=$MAIN_AGENT ==="
 
     if [[ "$MAIN_AGENT" == "claude" ]]; then
-        for dir in rules skills; do
+        for dir in rules skills agents; do
             if [ -d ~/.claude/$dir ]; then
-                mkdir -p "$CLAUDE_SRC/$dir"
-                rsync -a ~/.claude/$dir/ "$CLAUDE_SRC/$dir/"
+                mkdir -p "$SHARED_SRC/$dir"
+                rsync -a ~/.claude/$dir/ "$SHARED_SRC/$dir/"
             fi
         done
-        echo "  Pulled from ~/.claude: $(ls ~/.claude/rules/ 2>/dev/null | wc -l) rules, $(ls ~/.claude/skills/ 2>/dev/null | wc -l) skills"
+        echo "  Pulled from ~/.claude into shared/: $(ls ~/.claude/rules/ 2>/dev/null | wc -l) rules, $(ls ~/.claude/skills/ 2>/dev/null | wc -l) skills, $(ls ~/.claude/agents/ 2>/dev/null | wc -l) agents"
     else
         if [ -d ~/.codex/skills ]; then
-            mkdir -p "$CLAUDE_SRC/skills"
-            rsync -a ~/.codex/skills/ "$CLAUDE_SRC/skills/"
+            mkdir -p "$SHARED_SRC/skills"
+            rsync -a ~/.codex/skills/ "$SHARED_SRC/skills/"
         fi
-        echo "  Pulled from ~/.codex: $(ls ~/.codex/skills/ 2>/dev/null | wc -l) skills"
+        echo "  Pulled from ~/.codex into shared/: $(ls ~/.codex/skills/ 2>/dev/null | wc -l) skills"
         echo "  Codex has no Claude-style Markdown rules directory; root AGENTS.md is not reverse-synced."
     fi
 
@@ -125,16 +131,22 @@ sync_claude_home() {
             echo ""
             cat "$extra_file"
         fi
+        if [[ -f "$PROJECT_SRC" ]]; then
+            echo ""
+            cat "$PROJECT_SRC"
+        fi
     } > "$home_dir/CLAUDE.md"
 
     for dir in rules skills agents; do
-        if [ -d "$CLAUDE_SRC/$dir" ]; then
+        if [ -d "$SHARED_SRC/$dir" ]; then
             mkdir -p "$home_dir/$dir"
-            rsync -a "$CLAUDE_SRC/$dir/" "$home_dir/$dir/"
+            rsync -a "$SHARED_SRC/$dir/" "$home_dir/$dir/"
         fi
     done
 
-    echo "  CLAUDE.md, $(ls "$home_dir/rules/" 2>/dev/null | wc -l) rules, $(ls "$home_dir/skills/" 2>/dev/null | wc -l) skills, $(ls "$home_dir/agents/" 2>/dev/null | wc -l) agents"
+    local project_note=""
+    [[ -f "$PROJECT_SRC" ]] && project_note=" + PROJECT.md"
+    echo "  CLAUDE.md$project_note, $(ls "$home_dir/rules/" 2>/dev/null | wc -l) rules, $(ls "$home_dir/skills/" 2>/dev/null | wc -l) skills, $(ls "$home_dir/agents/" 2>/dev/null | wc -l) agents"
 }
 
 # --- Helper: build Codex AGENTS.md from selected role template + shared rules ---
@@ -149,12 +161,16 @@ build_codex_agents_md() {
             echo ""
             cat "$extra_file"
         fi
+        if [[ -f "$PROJECT_SRC" ]]; then
+            echo ""
+            cat "$PROJECT_SRC"
+        fi
         echo ""
         echo "---"
         echo ""
         echo "## Rules"
         echo ""
-        for rule_file in "$CLAUDE_SRC/rules/"*.md; do
+        for rule_file in "$SHARED_SRC/rules/"*.md; do
             [ -f "$rule_file" ] || continue
             echo ""
             extract_rule_body "$rule_file"
@@ -282,12 +298,8 @@ if [[ "$SINGLE_MODE" -eq 0 || "$MAIN_AGENT" == "claude" ]]; then
     # === Claude: selected role copy ===
     echo "=== Syncing to ~/.claude ==="
     sync_claude_home "$HOME/.claude" "$CLAUDE_INSTALL_SRC" "$CLAUDE_EXTRA_SRC"
-
-    # === Claude-internal: selected role copy (same source as ~/.claude) ===
-    echo "=== Syncing to ~/.claude-internal ==="
-    sync_claude_home "$HOME/.claude-internal" "$CLAUDE_INSTALL_SRC" "$CLAUDE_EXTRA_SRC"
 else
-    echo "=== Skipping Claude homes in single Codex mode ==="
+    echo "=== Skipping Claude home in single Codex mode ==="
 fi
 
 if [[ "$SINGLE_MODE" -eq 0 || "$MAIN_AGENT" == "codex" ]]; then
@@ -298,19 +310,21 @@ if [[ "$SINGLE_MODE" -eq 0 || "$MAIN_AGENT" == "codex" ]]; then
     # Build AGENTS.md: selected Codex role template + rules appended
     build_codex_agents_md "$CODEX_INSTALL_SRC" "$CODEX_EXTRA_SRC" ~/.codex/AGENTS.md
 
-    # Copy all skills from Claude to Codex
-    rsync -a "$CLAUDE_SRC/skills/" ~/.codex/skills/
+    # Copy all skills from shared/ to Codex
+    rsync -a "$SHARED_SRC/skills/" ~/.codex/skills/
 
-    # Convert all agents from both sources to .toml
+    # Convert all agents to .toml
     agent_count=0
-    for md_file in "$CLAUDE_SRC/agents/"*.md "$CODEX_SRC/agents/"*.md; do
+    for md_file in "$SHARED_SRC/agents/"*.md; do
         [ -f "$md_file" ] || continue
         basename="$(basename "$md_file" .md)"
         convert_agent_md_to_toml "$md_file" ~/.codex/agents/"$basename".toml
         agent_count=$((agent_count + 1))
     done
 
-    echo "  AGENTS.md ($(basename "$CODEX_INSTALL_SRC") + $(ls "$CLAUDE_SRC/rules/"*.md 2>/dev/null | wc -l) rules inlined), $(ls ~/.codex/skills/ 2>/dev/null | wc -l) skills, $agent_count agents"
+    project_note=""
+    [[ -f "$PROJECT_SRC" ]] && project_note=" + PROJECT.md"
+    echo "  AGENTS.md ($(basename "$CODEX_INSTALL_SRC")$project_note + $(ls "$SHARED_SRC/rules/"*.md 2>/dev/null | wc -l) rules inlined), $(ls ~/.codex/skills/ 2>/dev/null | wc -l) skills, $agent_count agents"
     echo "  Workspace-write agents: ${WORKSPACE_WRITE_AGENTS[*]}"
 else
     echo "=== Skipping Codex home in single Claude mode ==="

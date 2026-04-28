@@ -44,7 +44,7 @@
      ❌ 错误："使用缓存来降低延迟" -->
 
 ---
-<!-- Gate 1 (Requirements Understanding) 到此为止。
+<!-- Gate: Requirements Understanding 到此为止。
      以下 section 由 system-design skill 引导填写。 -->
 
 ## 4. 设计方案

@@ -75,19 +75,19 @@ High agency doesn't mean uncontrolled. LLM outputs are probabilistic — each st
 
 Agency solves this with two mechanisms:
 
-**Quality gates** are mandatory checkpoints at phase boundaries — where errors are cheapest to catch and most expensive to miss. The agent works freely between gates, but must stop and present at each one. You review, redirect if needed, and approve.
+**Quality gates** are checkpoints at phase boundaries — where errors are cheapest to catch and most expensive to miss. The agent works freely between gates, but must stop and present at each one. You review, redirect if needed, and approve.
 
-| # | Gate | What it catches |
-|---|------|----------------|
-| 1 | Requirements understanding | Wrong problem, missed scope, bad assumptions |
-| 2 | Plan approval | Flawed approach, missed dependencies, unnecessary risk |
-| 3 | Solution design | Architectural mistakes, missed alternatives |
-| 4 | Test plan | Inadequate coverage, wrong test strategy |
-| 5 | Ops/visibility | Missing monitoring, config issues, deployment risk |
-| 6 | Code review results | Implementation bugs, style violations, security issues |
-| 7 | PR submission | Incomplete changes, failed tests, wrong reviewers |
+Two gates are **always-mandatory**: **Plan Approval** (after planning, before executing) and **Final Review / PR Submission** (before declaring done). The gates below are **conditional** — invoked when the task warrants, marked N/A with rationale otherwise.
 
-The agent marks any gate N/A if it doesn't apply. A bug fix might only hit gates 1, 6, 7. A new feature hits all seven.
+| Gate | What it catches |
+|------|----------------|
+| Requirements Understanding | Wrong problem, missed scope, bad assumptions |
+| Solution Design | Architectural mistakes, missed alternatives |
+| Test Plan | Inadequate coverage, wrong test strategy |
+| Ops/Visibility | Missing monitoring, config issues, deployment risk |
+| Code Review | Implementation bugs, style violations, security issues |
+
+A bug fix might only hit Code Review on top of the mandatory pair; a new feature typically hits all of them. The agent proposes which gates apply in `plan.md` and you dial.
 
 **Ad-hoc escalation** handles the unexpected between gates. When the agent hits a trade-off with no clear winner, missing access, or genuine uncertainty, it escalates with context, options, and its recommendation — never open-ended questions. You make the call, the agent continues.
 
@@ -159,10 +159,7 @@ The agent will research, plan, and execute — stopping at quality gates for you
 
 ```
 Agency/
-├── claude/
-│   ├── CLAUDE-main.md         # Claude as primary agent
-│   ├── CLAUDE-collaborator.md # Claude as peer reviewer/problem-solver
-│   ├── cross-model-codex.md   # Addendum when Codex is installed as peer
+├── shared/                    # Assets shared across all agents
 │   ├── rules/                 # Always-on behavioral constraints
 │   │   ├── activity-tracking.md
 │   │   ├── escalation.md
@@ -173,17 +170,22 @@ Agency/
 │   │   ├── implementer.md         # Code changes in isolated context
 │   │   ├── reviewer-*.md          # Specialist code reviewers (spec, standards, robustness, perf, proof-obligations)
 │   │   └── validator.md           # Independent verification of completed work
-│   └── skills/                # On-demand capabilities
-│       ├── planning/              # plan.md for non-trivial tasks
-│       ├── requirements-clarification/  # spec.md sections 1-3
-│       ├── system-design/         # spec.md sections 4+
-│       ├── task-planning/         # tasks.md breakdown
-│       ├── code-review/           # Multi-agent review orchestration
-│       ├── codex-collaboration/   # Cross-model consensus protocol
-│       ├── claude-collaboration/  # Cross-model consensus protocol
-│       ├── process-cr-comments/   # Triage and respond to PR review comments
-│       ├── consolidate-agent-dir/ # Clean up task artifact directories
-│       └── reflect/               # Proactive reflection on mistakes and lessons
+│   ├── skills/                # On-demand capabilities
+│   │   ├── planning/              # plan.md for non-trivial tasks
+│   │   ├── requirements-clarification/  # spec.md sections 1-3
+│   │   ├── system-design/         # spec.md sections 4+
+│   │   ├── task-planning/         # tasks.md breakdown
+│   │   ├── code-review/           # Multi-agent review orchestration
+│   │   ├── codex-collaboration/   # Cross-model consensus protocol
+│   │   ├── claude-collaboration/  # Cross-model consensus protocol
+│   │   ├── process-cr-comments/   # Triage and respond to PR review comments
+│   │   ├── consolidate-agent-dir/ # Clean up task artifact directories
+│   │   └── reflect/               # Proactive reflection on mistakes and lessons
+│   └── PROJECT.md             # (Optional) project-specific context appended to installs
+├── claude/
+│   ├── CLAUDE-main.md         # Claude as primary agent
+│   ├── CLAUDE-collaborator.md # Claude as peer reviewer/problem-solver
+│   └── cross-model-codex.md   # Addendum when Codex is installed as peer
 ├── codex/
 │   ├── AGENTS-main.md         # Codex as primary agent
 │   ├── AGENTS-collaborator.md # Codex as peer reviewer/problem-solver

@@ -1,6 +1,6 @@
 ---
 name: system-design
-description: Fills spec.md sections 4+ (design, alternatives, test plan, observability). Invoke after sections 1-3 are approved at gate 1. The agent researches the codebase, drafts the design, and presents at gate 2 for approval.
+description: Fills spec.md sections 4+ (design, alternatives, test plan, observability). Invoke after sections 1-3 are approved at Gate: Requirements Understanding. The agent researches the codebase, drafts the design, and presents at Gate: Solution Design for approval.
 ---
 
 # System Design
@@ -18,9 +18,9 @@ The agent drafts the design, the user reviews it. Research the codebase thorough
 1. Use researcher subagent to investigate: existing module structure, adjacent/similar modules' implementation patterns, interfaces, dependencies, constraints
 2. Draft sections 4.1 (overview), 4.2 (key design decisions), 4.3 (trade-offs) — focusing on WHAT and WHY, not implementation details
 3. Draft section 5 (alternatives considered)
-4. Present sections 4-5 at Gate 2 (Solution Design) for approval
-5. After gate 2 approval, draft section 6 (test plan) → present at Gate 3
-6. Draft section 7 (observability & operations) if applicable → present at Gate 4, or mark N/A
+4. Present sections 4-5 at Gate: Solution Design for approval
+5. After Solution Design approval, draft section 6 (test plan) → present at Gate: Test Plan
+6. Draft section 7 (observability & operations) if applicable → present at Gate: Ops/Visibility, or mark N/A
 
 ## Abstraction Level
 

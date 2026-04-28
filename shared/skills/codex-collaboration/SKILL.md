@@ -52,7 +52,7 @@ Always include `--skip-git-repo-check` — Codex refuses to run outside a truste
 ### Starting a session
 
 ```bash
-codex exec --skip-git-repo-check "<your prompt>"
+codex exec --skip-git-repo-check "<your prompt>" </dev/null
 ```
 
 Output includes `session id: <uuid>` — extract and save it for subsequent calls.
@@ -60,16 +60,19 @@ Output includes `session id: <uuid>` — extract and save it for subsequent call
 ### Continuing the conversation
 
 ```bash
-codex exec resume --skip-git-repo-check "$SESSION_ID" "<next prompt>"
+codex exec resume --skip-git-repo-check "$SESSION_ID" "<next prompt>" </dev/null
 ```
 
 The session maintains full history — Codex remembers everything said earlier.
+
+The `</dev/null` is mandatory — see "Running Codex Without Blocking" below.
 
 ## Running Codex Without Blocking
 
 Codex calls may take 20+ minutes. You must not block the main agent waiting, and you must not invent your own polling scheme.
 
 - **Use the Bash tool's `run_in_background: true`.** The harness captures Codex's stdout/stderr and sends you a completion notification when the process exits. Read the output from the notification's file path at that point — not before.
+- **Always close stdin with `</dev/null`.** When Bash launches codex via `run_in_background: true`, stdin is a non-TTY pipe rather than closed, and the codex CLI will block reading additional input even when the prompt is supplied via argv. The hang is silent — the output file shows only `Reading additional input from stdin...` and the codex process never starts processing the prompt. If you forget the redirect, the task will run indefinitely until you kill it. Append `</dev/null` to every `codex exec` and `codex exec resume` call.
 - **Do not redirect Codex output to a tmp file yourself** (e.g., `codex ... > /tmp/foo.log &`). The harness already does this correctly via `run_in_background`; doing it manually duplicates work and invites the next anti-pattern.
 - **Do not poll a log file with `until grep ...; do sleep; done`.** These loops routinely grep for the wrong marker, run forever when Codex fails silently, and leak zombie shells that keep sleeping after the conversation moves on. If you find yourself reaching for `grep` + `sleep` to detect completion, stop — you should be waiting on the background task notification instead.
 - **No timeout.** Don't set a `timeout` on the Bash call and don't kill the process. Codex finishes when it finishes; the completion notification is your signal.

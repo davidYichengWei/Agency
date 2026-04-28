@@ -16,7 +16,7 @@ The agent should do the research, the user should provide the intent. Only ask t
 1. Copy `assets/spec-template.md` to `docs/design-docs/<module>/<feature>/spec.md`
 2. Research the codebase to understand the current state, then draft each section
 3. Ask the user only for human knowledge: why this is needed, what the goals are, what's in/out of scope
-4. Present sections 1-3 at Gate 1 (Requirements Understanding) for approval
+4. Present sections 1-3 at Gate: Requirements Understanding for approval
 
 The section order (1.1 → 1.3 → 2.1 → 2.2 → 3.1 → 3.2) is a natural progression, but use your judgment — if the user leads with goals, start there.
 

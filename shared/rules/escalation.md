@@ -6,19 +6,21 @@ alwaysApply: true
 
 # Escalation Model
 
-## Mandatory Quality Gates
+## Quality Gates
 
-Seven checkpoints requiring human review and approval. Mark a gate **N/A** with rationale if it genuinely does not apply to the current task.
+The core loop has two **always-mandatory** gates: **Plan Approval** (after planning, before executing) and **Final Review** / **PR Submission** (before declaring done).
 
-| # | Gate | When to stop | What to present |
-|---|------|-------------|-----------------|
-| 1 | **Requirements understanding** | After initial research, before starting work | Task understanding, proposed success criteria, applicable gates |
-| 2 | **Plan approval** | After creating plan.md, before executing | Approach, step breakdown, task dependencies, risk areas |
-| 3 | **Solution design** | After drafting an approach, before implementing | Design proposal with alternatives and recommended approach |
-| 4 | **Test plan** | After identifying what needs testing | Test strategy, coverage targets, test types |
-| 5 | **Ops/visibility** | When the change affects observability, config, or operations | Monitoring, logging, alerting, configuration changes |
-| 6 | **Code review results** | After Codex review (if enabled) or self-review | Consolidated findings, unresolved issues, risk assessment |
-| 7 | **PR submission** | Before creating/submitting the PR | Summary of changes, test results, reviewer assignment |
+The gates below are **conditional** — invoke them when the task warrants, mark **N/A** with rationale otherwise. Listed in approximate firing order.
+
+| Gate | When to stop | What to present |
+|------|-------------|-----------------|
+| **Requirements Understanding** | After initial research, before starting work | Task understanding, proposed success criteria, applicable gates |
+| **Solution Design** | After drafting an approach, before implementing | Design proposal with alternatives and recommended approach |
+| **Test Plan** | After identifying what needs testing | Test strategy, coverage targets, test types |
+| **Ops/Visibility** | When the change affects observability, config, or operations | Monitoring, logging, alerting, configuration changes |
+| **Code Review** | After Codex review (if enabled) or self-review | Consolidated findings, unresolved issues, risk assessment |
+
+> **Note on Requirements Understanding.** The standard loop folds this gate into Plan Approval; present it separately only when initial research surfaces material uncertainty about the goal — i.e., when writing a detailed plan would risk going in the wrong direction.
 
 ## Ad-hoc Escalation Principles
 

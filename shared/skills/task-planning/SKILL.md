@@ -1,13 +1,13 @@
 ---
 name: task-planning
-description: Breaks a spec.md into an implementable task list (tasks.md) with dependencies, context, and acceptance criteria. Invoke after the design is approved at gate 2, before starting implementation.
+description: Breaks a spec.md into an implementable task list (tasks.md) with dependencies, context, and acceptance criteria. Invoke after the design is approved at Gate: Solution Design, before starting implementation.
 ---
 
 # Task Planning
 
 ## Prerequisite
 
-spec.md must be complete (sections 1-7 filled or marked N/A) and approved at gate 2. If not, invoke `system-design` first.
+spec.md must be complete (sections 1-7 filled or marked N/A) and approved at Gate: Solution Design. If not, invoke `system-design` first.
 
 ## Core Principle
 

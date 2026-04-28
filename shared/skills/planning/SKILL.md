@@ -21,7 +21,7 @@ When in doubt, create a plan — the overhead is small and the crash recovery be
 1. Research the codebase to understand scope and complexity
 2. Copy `assets/plan-template.md` to `.agent/<task-name>/plan.md`
 3. Fill in: goal, success criteria, steps
-4. Present the plan at Gate 1 (Requirements Understanding) for user approval
+4. Present the plan at Gate: Requirements Understanding for user approval
 5. After approval, start executing — you drive the process
 
 ## Following a plan
@@ -48,12 +48,12 @@ The plan is a living document. Update it when:
 
 Most task types are fluid — you pick the approach based on what the task needs. **Feature development is the exception.** When the user is building a new feature or significant new functionality, follow this exact sequence and invoke the named skill at each step. Each skill produces the artifact the next one consumes (e.g., `system-design` reads the spec that `requirements-clarification` wrote), so the ordering is not decorative.
 
-1. [ ] Clarify requirements → invoke **`requirements-clarification`** → writes `spec.md` sections 1-3 (background, goals, requirements) → **Gate 1** (user review)
-2. [ ] Design the solution → invoke **`system-design`** → fills `spec.md` sections 4+ (design, alternatives, test plan, observability) → **Gate 2** (user review)
+1. [ ] Clarify requirements → invoke **`requirements-clarification`** → writes `spec.md` sections 1-3 (background, goals, requirements) → **Gate: Requirements Understanding** (user review)
+2. [ ] Design the solution → invoke **`system-design`** → fills `spec.md` sections 4+ (design, alternatives, test plan, observability) → **Gate: Solution Design** (user review)
 3. [ ] Break the design into tasks → invoke **`task-planning`** → produces `tasks.md` with dependencies, context, acceptance criteria
 4. [ ] Implement. **Prefer TDD / red-green-refactor when the behavior you're building is test-able ahead of time.** Writing tests first forces you to pin down the behavior before you commit to an implementation, and you end up with the regression guard for free. The *granularity* is your call — sometimes one failing test per task, sometimes a whole feature-level test suite written up front and then the code to satisfy it; judge based on how stable the interface is and how naturally the tests decompose. Skip TDD when it honestly doesn't fit (exploratory spike with an unclear interface, pure refactor under existing coverage, UI polish, perf work measured by benchmarks) — but the test plan in `spec.md` is the contract either way, so don't close the feature without its tests written and green. Dispatch work to the `implementer` subagent (one task per implementer; parallelize any tasks flagged as independent in `tasks.md`). Run the full suite after each task goes green to catch regressions early.
-5. [ ] Code review → invoke **`code-review`** → runs the five-reviewer panel + per-finding validator → **Gate 6** (user review of consolidated findings)
-6. [ ] Prepare submission → use the project's submit/publish workflow if one is installed; exclude agent artifacts and present the final diff/test summary → **Gate 7** (user review before submit)
+5. [ ] Code review → invoke **`code-review`** → runs the five-reviewer panel + per-finding validator → **Gate: Code Review** (user review of consolidated findings)
+6. [ ] Prepare submission → use the project's submit/publish workflow if one is installed; exclude agent artifacts and present the final diff/test summary → **Gate: PR Submission** (user review before submit)
 
 **Why invoke the skills instead of improvising each stage?** Each of these skills encodes conventions the harness relies on — `spec.md` section layout, `tasks.md` schema, the ultrareview reviewer panel, and artifact-exclusion expectations. Re-deriving any of them ad-hoc is how subtle drift creeps into the codebase. The skills know the format; you shouldn't have to.
 
